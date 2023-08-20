@@ -1,14 +1,13 @@
 # 서버 프로그램 (TCP)
 import socket, time
-import sys
 import json
 import base64
 import pickle
-import struct
-import gzip
 host = 'localhost' # 서버 컴퓨터의 ip(여기선 내 컴퓨터를 서버 컴퓨터로 사용) 
                    # 본인의 ip주소 넣어도 됨(확인방법: cmd -> ipconfig)
 port = 3333  # 서버 포트번호(다른 프로그램이 사용하지 않는 포트번호로 지정해야 함)
+
+# https://stackoverflow.com/questions/39817641/how-to-send-a-json-object-using-tcp-socket-in-python
 
 # 서버소켓 오픈(대문을 열어둠)
 # socket.AF_INET: 주소종류 지정(IP) / socket.SOCK_STREAM: 통신종류 지정(UDP, TCP)
@@ -35,19 +34,25 @@ print('echo server start') # echo program: 입력한 값을 메아리치는 기�
 conn, addr = server_socket.accept()
 
 print("conn is ", conn)
-print("conn is conn.recv(4)", conn.recv(4))
 print('connected client addr:', addr)
 
 data_size = 5000#struct.unpack('>I', conn.recv(4))[0]
 print("data_size is ", data_size)
+
 received_payload = b""
 print("received_payload is ", received_payload)
+
 reamining_payload_size = data_size
 #while reamining_payload_size != 0:
 received_payload += conn.recv(100)
 print("received_payload is", received_payload)
 #reamining_payload_size = data_size - len(received_payload)
 
+my_json = received_payload
+print(my_json)
+print('- ' * 20)
+data = json.loads(my_json)
+s = json.dumps(data, indent=4, sort_keys=True)
 
 with open('test.pickle', 'wb') as ofp:
     pickle.dump(received_payload, ofp)
@@ -56,7 +61,9 @@ with open('test.pickle', 'wb') as ofp:
 
 with open('test.pickle', 'rb') as ifp:
     data = pickle.load(ifp)
-    print("r is ", data)
+    print("r is ", data, type(data))
+
+    print(s)
 #with open('test2.pkl', 'rb') as my_file:
 #    hohoho = pickle.load(my_file)
 #    print("hohoho is ", hohoho)
