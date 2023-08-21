@@ -50,6 +50,7 @@ def find_car_num_list():
     resp = make_response(jsonify(arr))
     return resp
 
+#차량 번호 조회
 @app.route('/car-number', methods=['GET', 'POST'])
 def find_car_num():
     arr = []
@@ -70,6 +71,7 @@ def find_car_num():
     resp = make_response(jsonify(arr))
     return resp
 
+#차량 번호 추가
 @app.route('/car-number/regist', methods=['POST'])
 def regist_car_number():
     car_num = request.form['car_num']
@@ -86,16 +88,17 @@ def regist_car_number():
 
 @app.route('/car-number/delete', methods=['POST'])
 def delete_car_number():
-    car_num = request.form['car_num']
 
-    print("req is ", request.form['car_num'])
+    print("req is ", request.get_json())
     
-    delete =  'INSERT INTO car_number_mng \
-    (car_number) VALUES (%s);'
-    cur = conn.cursor()
-    cur.execute(delete, car_num)
-    conn.commit()
+    delete =  'DELETE FROM car_number_mng \
+    WHERE id IN (%s);'
 
+    cur = conn.cursor()
+    result = cur.execute(delete, request.get_json())
+    print("result is ", result)
+    conn.commit()
+    print("result2 is ", result)
     return 'done'
 
 if __name__ == '__main__':
