@@ -23,7 +23,7 @@ class Detector(SyncExecutor):
             for entity in annotation_scene.shapes:
                 x1, y1 = int(entity.x1 * frame.shape[1]), int(entity.y1 * frame.shape[0])
                 x2, y2 = int(entity.x2 * frame.shape[1]), int(entity.y2 * frame.shape[0])
-                cropped.append(frame[y1:y2, x1:x2])
+                cropped.append((frame[y1:y2, x1:x2], (x1,y1), (x2,y2)))
         return cropped
 
 def get_detector():
@@ -36,9 +36,14 @@ if __name__ == "__main__":
     detector = get_detector()
     img = cv2.imread('/home/intel/workspace/carplate/images/0000_0001.png')
     cropped = detector.infer(img)
+    
     for crop in cropped:
-        cv2.imshow("asdf",crop)
+        cropped_frame, tl, br = crop
+        cv2.rectangle(img, tl, br, (255,0,0), thickness=2)
+        cv2.imshow("asdf",cropped_frame)
+        cv2.imshow('frame', img)
         cv2.waitKey(0)
+    
 
 
         
