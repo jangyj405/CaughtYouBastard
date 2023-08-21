@@ -1,0 +1,50 @@
+https://blogger.pe.kr/885/ MariaDB 설치
+https://www.fun-coding.org/post/mysql_basic6.html#gsc.tab=0 #pymysql 사용법
+
+sudo apt-get install mariadb-client;
+sudo mysql_secure_installation;
+sudo mysql -u root -p;
+
+show databases;
+CREATE DATABASE intel_project;
+
+#DB 선택
+use intel_project;
+
+
+#테이블 생성
+create table car_number_mng 
+(
+	id int NOT NULL unique auto_increment,
+	car_number varchar(10)  NOT NULL,
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+	updated_at timestamp ON UPDATE CURRENT_TIMESTAMP
+) default charset=utf8;
+
+create table car_pass_log
+(
+	id int NOT NULL unique auto_increment,
+	pi_id int NOT NULL,
+	car_number varchar(4) NOT NULL,
+	time timestamp NOT NULL,
+	frame_path varchar(200) NULL, 
+	isblock boolean NOT NULL,
+
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+	updated_at timestamp ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`car_number`)
+	
+)
+
+
+## test 데이터 추가
+ INSERT INTO car_number_mng
+ (
+ 	car_number		
+ )
+ VALUES
+ ("3358"), ("5568"), ("2234");
+ 
+ 
+ #테이블 데이터 조회
+ select id, car_number, created_at from car_number_mng;
