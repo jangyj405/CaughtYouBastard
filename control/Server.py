@@ -12,8 +12,8 @@ def recvall(sock):
             break
     return data
 
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+HOST = "10.10.14.2"  # Standard loopback interface address (localhost)
+PORT = 8000  # Port to listen on (non-privileged ports are > 1023)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -23,11 +23,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print(f"Connected by {addr}")
         while True:
             data = recvall(conn)
+            print("data is", data, type(data))
             if not data:
                 break
-            json_string = data.decode()
-            print(json_string)
-            dict = json.loads(json_string)
-            print(type(dict))
-            print(dict["id"], dict["frame"],dict["number"],dict["timeStamp"],dict["block"],)
-            conn.sendall(data)
+            json_string = data.decode(encoding="utf-8")
+
+            try:
+                dict = json.loads(data)
+
+                print(dict["id"], dict["frame"],dict["number"],dict["timeStamp"],dict["block"],)
+            except:
+                pass
+            #conn.sendall(data)
