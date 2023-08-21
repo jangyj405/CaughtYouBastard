@@ -10,6 +10,17 @@ import base64
 from datetime import datetime, timezone
 import pytz
 
+
+from CarNum_init import GetCarNumList
+
+carNumList =  GetCarNumList()
+print("car Num List is ", carNumList)
+
+HOST = "10.10.14.220"  # The server's hostname or IP address
+PORT = 8000  # The port used by the 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+s.connect((HOST, PORT))
+
 def get_json_byte(img, number):
     utc = pytz.timezone('UTC')
     kst = pytz.timezone('Asia/Seoul')
@@ -19,14 +30,13 @@ def get_json_byte(img, number):
 
     LogData = {"id" : 0, }
     LogData["timeStamp"]=kst_now.strftime("%Y-%m-%d-%H-%M-%S")
-    LogData["frame"]=img
+    LogData["frame"]=img#base64.urlsafe_b64encode(bytes(img)).decode('utf-8')
     LogData["number"]=number
     LogData["block"]=1
-
     json_string = json.dumps(LogData)
-    json_byte = str.encode(json_string)
-
-    return json_byte
+    #json_byte = str.encode(json_string)
+    
+    return json_string
 
 # Replace '/dev/ttyACM0' with the correct port
 # arduino = Serial('/dev/ttyACM0', 9600)
@@ -35,24 +45,14 @@ cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise IOError("Cannot open webcam")
 
-# SERVER_IP = "<Your RasPi IP>"
-# SERVER_PORT = 12345
-# server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# server_socket.bind((SERVER_IP, SERVER_PORT))
-# server_socket.listen()
 lpr_model = LPRModel()
 
 while True:
     _, img = cap.read()
 
-    # Server client handling part
-    # client_socket, addr = server_socket.accept()
-    # print('Connected by', addr)
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-
 
     contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -65,7 +65,6 @@ while True:
                 x, y, w, h = cv2.boundingRect(cnt)
                 aspect_ratio = 0 if h == 0 else float(w) / h
 
-
                 area = w * h
                 if 7500 < area < 9500 and 2.3 <= aspect_ratio <= 2.7:
                     boxed_part = img[y:y + h, x:x + w]
@@ -75,23 +74,19 @@ while True:
                     print(number)
                     if len(number) == 4:
                         success, buffer = cv2.imencode('.jpg', img)
-
                         if success:
                             print(type(buffer))
-                            encoded_img = base64.b64encode(buffer)
-                            print(encoded_img)
-                            json_byte = get_json_byte(encoded_img.decode(), number)
-                            HOST = "127.0.0.1"  # The server's hostname or IP address
-                            PORT = 65432  # The port used by the server
+                            encoded_img = base64.b64encode(img).decode('utf-8')
 
-                            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                                s.connect((HOST, PORT))
-                                s.sendall(json_byte)
+                            #print(encoded_img)
+                            json_byte = get_json_byte(encoded_img, number)
+
+                            #while len(json_byte) !=0:
+                            s.sendall(bytes(json_byte, encoding='utf-8'))
 
                     # client_socket.sendall(b'1')
 
                     last_x, last_y, last_w, last_h = x, y, w, h
-
 
     cv2.imshow("Detected Objects", img)
     cv2.imwrite('result.png', img)
@@ -99,7 +94,6 @@ while True:
         final_img = img
         final_box = (last_x, last_y, last_w, last_h)
         break
-
 lpr_model.free()
 cap.release()
 cv2.destroyAllWindows()
