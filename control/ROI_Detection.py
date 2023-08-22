@@ -1,32 +1,16 @@
 import sys
 sys.path.insert(1,'../model/')
 from joolpr.infer import LPRModel
-import socket
-# from serial import Serial
 import cv2
-import json
 import numpy as np
 import base64
-from datetime import datetime, timezone
-import pytz
+import threading
+from tcp_function import tcp_connection, send_log_data, free_tcp_sosket, get_car_num_list
 
-def get_json_byte(img, number):
-    utc = pytz.timezone('UTC')
-    kst = pytz.timezone('Asia/Seoul')
+subjects =  get_car_num_list()
+print("car Num List is ", subjects)
 
-    utc_now = datetime.now(utc)
-    kst_now = utc_now.astimezone(kst)
-
-    LogData = {"id" : 0, }
-    LogData["timeStamp"]=kst_now.strftime("%Y-%m-%d-%H-%M-%S")
-    LogData["frame"]=img
-    LogData["number"]=number
-    LogData["block"]=1
-
-    json_string = json.dumps(LogData)
-    json_byte = str.encode(json_string)
-
-    return json_byte
+cleint_socket = tcp_connection()
 
 # Replace '/dev/ttyACM0' with the correct port
 # arduino = Serial('/dev/ttyACM0', 9600)
@@ -74,45 +58,33 @@ while True:
                     number, output_img = lpr_model.infer(boxed_part)
                     print(number)
                     if len(number) == 4:
-                        success, buffer = cv2.imencode('.jpg', img)
+                        success, buffer = cv2.imencode('.jpg', img)#cv2.imread("./result2.png")#
 
                         if success:
                             print(type(buffer))
-                            encoded_img = base64.b64encode(buffer)
+                            encoded_img = base64.b64encode(buffer).decode(encoding='utf-8')
                             print(encoded_img)
-                            json_byte = get_json_byte(encoded_img.decode(), number)
-                            HOST = "127.0.0.1"  # The server's hostname or IP address
-                            PORT = 65432  # The port used by the server
+                            #json_byte = get_json_byte(encoded_img.decode(), number)
 
-                            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                                s.connect((HOST, PORT))
-                                s.sendall(json_byte)
-
+                            #print(encoded_img)
+                            #send_log_data(cleint_socket, '0', encoded_img, number)
+                            print("t1")
+                            t1 = threading.Thread(target=send_log_data, args=[cleint_socket,'0', encoded_img, number])
+                            t1.start()
+                            #cleint_socket.sendall(bytes(json_byte, encoding='utf-8'))
+                            #time.sleep(12)
                     # client_socket.sendall(b'1')
 
                     last_x, last_y, last_w, last_h = x, y, w, h
-
 
     cv2.imshow("Detected Objects", img)
     cv2.imwrite('result.png', img)
     if cv2.waitKey(25) & 0xFF == ord('q'):
         final_img = img
         final_box = (last_x, last_y, last_w, last_h)
+        t1.join()
         break
 
 lpr_model.free()
 cap.release()
 cv2.destroyAllWindows()
-# server_socket.close()
-
-
-
-
-
-# 서버에서 받은 번호판 정보와 모델에서 받은 문자열과 비교
-#
-# true = servo on
-# false = servo init
-#
-# if true
-# 서버에 DetectedRawImg with BoundingBox-> Server
