@@ -38,7 +38,7 @@ def free_tcp_sosket(socket):
     socket.close()
 
 def get_car_num_list():
-    resp = requests.get('http://10.10.14.2:4000/car-number-list')
+    resp = requests.get('http://10.10.14.220:8000/car-number-list')
     print("carnum is ", resp.text)
 
     result = resp.text
