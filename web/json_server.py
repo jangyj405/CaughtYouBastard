@@ -112,7 +112,7 @@ conn = mysql.connector.connect(host="localhost", user="root", password="intel123
 cur = conn.cursor()
 
 # 데이터 업로드
-comm = "INSERT INTO car_pass_log (pi_id, car_number, time, frame_path, isblock)\
+comm = "INSERT IGNORE INTO car_pass_log (pi_id, car_number, time, frame_path, isblock)\
  VALUES (%s, %s, %s, %s, %s);"
 cur.executemany(comm, tupled)
 
@@ -120,3 +120,5 @@ conn.commit()
 
 print("DB updated", cur.lastrowid)
 conn.close()
+
+
