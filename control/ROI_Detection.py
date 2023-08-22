@@ -12,6 +12,7 @@ print("car Num List is ", subjects)
 
 cleint_socket = tcp_connection()
 
+
 # Replace '/dev/ttyACM0' with the correct port
 # arduino = Serial('/dev/ttyACM0', 9600)
 
@@ -19,24 +20,14 @@ cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise IOError("Cannot open webcam")
 
-# SERVER_IP = "<Your RasPi IP>"
-# SERVER_PORT = 12345
-# server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# server_socket.bind((SERVER_IP, SERVER_PORT))
-# server_socket.listen()
 lpr_model = LPRModel()
 
 while True:
     _, img = cap.read()
 
-    # Server client handling part
-    # client_socket, addr = server_socket.accept()
-    # print('Connected by', addr)
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-
 
     contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -49,7 +40,6 @@ while True:
                 x, y, w, h = cv2.boundingRect(cnt)
                 aspect_ratio = 0 if h == 0 else float(w) / h
 
-
                 area = w * h
                 if 7500 < area < 9500 and 2.3 <= aspect_ratio <= 2.7:
                     boxed_part = img[y:y + h, x:x + w]
@@ -58,6 +48,7 @@ while True:
                     number, output_img = lpr_model.infer(boxed_part)
                     print(number)
                     if len(number) == 4:
+
                         success, buffer = cv2.imencode('.jpg', img)#cv2.imread("./result2.png")#
 
                         if success:
@@ -73,6 +64,7 @@ while True:
                             t1.start()
                             #cleint_socket.sendall(bytes(json_byte, encoding='utf-8'))
                             #time.sleep(12)
+
                     # client_socket.sendall(b'1')
 
                     last_x, last_y, last_w, last_h = x, y, w, h
@@ -84,7 +76,6 @@ while True:
         final_box = (last_x, last_y, last_w, last_h)
         t1.join()
         break
-
 lpr_model.free()
 cap.release()
 cv2.destroyAllWindows()
