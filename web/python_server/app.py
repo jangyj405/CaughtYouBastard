@@ -1,8 +1,12 @@
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify, redirect
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import pymysql
 import pymysqlpool
+import os
+import http as httpServer
+
+
 
 pymysqlpool.logger.setLevel('DEBUG')
 config = {'host':'localhost', 'user':'root', 'password':'intel123', 'db':'intel_project', 'charset':'utf8'}
@@ -40,9 +44,12 @@ def find_car_num_list():
     resp = make_response(jsonify(arr))
     return resp
 
+
+
 #차량 번호 조회
 @app.route('/car-number', methods=['GET', 'POST'])
 def find_car_num():
+    arr=[]
     conn = pymysql.connect(host="localhost", user="root", password="intel123", db="intel_project", charset='utf8')
     print("conn is", conn.host)
     cur = conn.cursor()
@@ -94,7 +101,7 @@ def delete_car_number():
 def find_car_pass_log():
     arr = []
     conn = pymysql.connect(host="localhost", user="root", password="intel123", db="intel_project", charset='utf8')
-    select = 'SELECT id, pi_id, car_number, time, frame_path, isblock \
+    select = 'SELECT id, pi_id, car_number, time, frame_path, isblock, created_at \
     FROM car_pass_log;'
 
     print("select is ", select)
@@ -108,6 +115,33 @@ def find_car_pass_log():
     print("arr is ", arr)
     resp = make_response(jsonify(arr))
     return resp
+
+@app.route('/car-img', methods = ['POST'])
+def file_upload_test():
+    f = request.files['files']
+    print("f is ", f)
+    f.save('static/uploads/' + secure_filename(f.filename))
+    files = os.listdir("static/uploads")
+
+    #conn = pymysql.connect(host="localhost", user="root", password="intel123", db="intel_project", charset='utf8')
+    #cursor = conn.cursor()
+        # 파일명과 파일경로를 데이터베이스에 저장함
+        #sql = "INSERT INTO images (image_name, image_dir) VALUES ('%s', '%s')" % (secure_filename(f.filename), 'uploads/'+secure_filename(f.filename))
+        #cursor.execute(sql)
+        #data = cursor.fetchall()
+ 
+        #if not data:
+        #    conn.commit()
+        #    return redirect(url_for("main"))
+ 
+        #else:
+        #    conn.rollback()
+        #    return 'upload failed'
+ 
+    #cursor.close()
+    #conn.close()
+    
+    return "0"
 
 if __name__ == '__main__':
     app.run(host='10.10.14.2', port=4000, debug=True)
