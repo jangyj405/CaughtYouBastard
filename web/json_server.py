@@ -5,6 +5,7 @@ import json
 import datetime
 import jsonlines
 import mysql.connector
+import base64
 
 HOST = "10.10.14.220"
 PORT = 5000
@@ -79,50 +80,40 @@ print("file ready...")
 # json을 tuple로 정리
 pi_id = []
 time = []
-frame_path = []
+frame = []
 car_number = []
 isblock = []
 with jsonlines.open(Dir+filename, 'r') as f:
     for line in f.iter():
         pi_id.append(line["id"])
         time.append(line["timeStamp"])
-        frame_path.append(line["frame"])
+        frame.append(line["frame"])
         car_number.append(line["number"])
         isblock.append(line["block"])
 print("list appended")
 
-tupled = [(pi_id[i], car_number[i], time[i], isblock[i]) for i in range(0, len(isblock))]
-
-'''
 # frame 저장
 Dir = r"/home/intel/webserver/pythonserver/cap/"
-os.chdir(Dir)
+frame_path = []
 
-for i in ange(0, len(img_code)):
-    filename = "car_" + str(now) + ".jpeg"
-    imgdata = img_code[i].encode('utf-8')
-    print("utf", type(imgdata))
-    #imgdata = base64.b64decode(img_code[i])
-    imgdata = base64.b64decode(imgdata)
-    print("b64", type(imgdata))
-    #imgdata = cv2.imdecode(imgdata, cv2.IMREAD_COLOR)
-    #print("cv2", type(imgdata))
-
-
+for i in range(0, len(frame)):
+    filename = f"car_{i}.jpeg"
+    imgdata = base64.b64decode(frame[i])
     with open(Dir+filename, 'wb') as f:
         f.write(imgdata)
         f.close()
-        print("img saved ", i)
-        
-'''
+        frame_path.append(Dir+filename)
+
+
+tupled = [(pi_id[i], car_number[i], time[i], frame_path[i], isblock[i]) for i in range(0, len(isblock))]
 
 # mysql 연결
 conn = mysql.connector.connect(host="localhost", user="root", password="intel123", db="rsbpi", charset="utf8")
 cur = conn.cursor()
 
 # 데이터 업로드
-comm = "INSERT INTO car_pass_log (pi_id, car_number, time, isblock)\
- VALUES (%s, %s, %s, %s);"
+comm = "INSERT INTO car_pass_log (pi_id, car_number, time, frame_path, isblock)\
+ VALUES (%s, %s, %s, %s, %s);"
 cur.executemany(comm, tupled)
 
 conn.commit()
