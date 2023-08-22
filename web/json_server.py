@@ -38,10 +38,9 @@ c_socket, addr = s_socket.accept()
 print("connected by", addr)
 
 Dir = r"/home/intel/webserver/pythonserver/json/"
-filename = "log" + ".jsonl"
+filename = "log" + str(now) + ".jsonl"
 
-with open(Dir+filename, 'r+') as f:
-    filedata1 = f.read()
+with open(Dir+filename, 'w+') as f:
     f.close()
 
 # 클라이언트와 연결
@@ -110,13 +109,15 @@ tupled = [(pi_id[i], car_number[i], time[i], frame_path[i], isblock[i]) for i in
 # mysql 연결
 conn = mysql.connector.connect(host="localhost", user="root", password="intel123", db="rsbpi", charset="utf8")
 cur = conn.cursor()
+print("DB connected")
 
 # 데이터 업로드
-comm = "INSERT INTO car_pass_log (pi_id, car_number, time, frame_path, isblock)\
+comm = "INSERT IGNORE INTO car_pass_log (pi_id, car_number, time, frame_path, isblock)\
  VALUES (%s, %s, %s, %s, %s);"
 cur.executemany(comm, tupled)
 
 conn.commit()
-
 print("DB updated", cur.lastrowid)
 conn.close()
+
+
