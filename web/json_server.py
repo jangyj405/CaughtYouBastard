@@ -4,10 +4,11 @@ import sys
 import json
 import datetime
 import jsonlines
+import mysql.connector
 
 HOST = "10.10.14.220"
-PORT = 8000
-BUF_SIZE = 65535
+PORT = 5000
+BUF_SIZE = 1024
 
 now = datetime.datetime.now().strftime("%d-%H-%M-%S")
 
@@ -36,73 +37,95 @@ c_socket, addr = s_socket.accept()
 print("connected by", addr)
 
 Dir = r"/home/intel/webserver/pythonserver/json/"
-filename = "log_" + now + ".jsonl"
+filename = "log" + ".jsonl"
+
+with open(Dir+filename, 'r+') as f:
+    filedata1 = f.read()
+    f.close()
 
 # 클라이언트와 연결
 while True:
     # 클라이언트에서 파일 받기
-
     received = c_socket.recv(BUF_SIZE)
     received = received.decode("utf-8")
     print(received)
 
-    with open(Dir+filename, 'a') as f:
+    with open(Dir+filename, 'a+') as f:
         f.write(received)
         f.flush()
 
         if not received:
+
             f.close()
-            print("json accepted")
+            print("socket closed")
             break
-'''
-    data = recvall(c_socket, 32)
-    if not data:
-        break
-    json_string = data.decode(encoding="utf-8")
 
-    try:
-        dict = json.loads(data)
-
-        print(dict["id"])
-
-    except:
-        pass
-'''
 # connect 종료
 c_socket.close()
 
-'''
-json_data = []
-with open(Dir+filename, 'r') as f:
-    for line in f:
-        json_data.append(json.loads(line))
-    json_obj = json.load(f)
-    car_number = json_obj['car_number']
-    print(car_number)
-'''
+# json 파일 정리
+with open(Dir+filename, 'r+') as f:
+    filedata2 = f.read()
+    f.close()
 
+filedata = filedata2.replace("}{", "}\n{")
+
+with open(Dir+filename, 'w+') as f:
+    f.write(filedata)
+    f.close()
+
+print("file ready...")
+
+# json을 tuple로 정리
+pi_id = []
+time = []
+frame_path = []
 car_number = []
+isblock = []
 with jsonlines.open(Dir+filename, 'r') as f:
     for line in f.iter():
-        car_number.append(line["car_number"])
+        pi_id.append(line["id"])
+        time.append(line["timeStamp"])
+        frame_path.append(line["frame"])
+        car_number.append(line["number"])
+        isblock.append(line["block"])
+print("list appended")
 
-print(car_number)
+tupled = [(pi_id[i], car_number[i], time[i], isblock[i]) for i in range(0, len(isblock))]
+
+'''
+# frame 저장
+Dir = r"/home/intel/webserver/pythonserver/cap/"
+os.chdir(Dir)
+
+for i in ange(0, len(img_code)):
+    filename = "car_" + str(now) + ".jpeg"
+    imgdata = img_code[i].encode('utf-8')
+    print("utf", type(imgdata))
+    #imgdata = base64.b64decode(img_code[i])
+    imgdata = base64.b64decode(imgdata)
+    print("b64", type(imgdata))
+    #imgdata = cv2.imdecode(imgdata, cv2.IMREAD_COLOR)
+    #print("cv2", type(imgdata))
 
 
-conn = pymysql.connect(host="localhost", user="root", password="intel123", db="rsbpi", charset="utf8")
+    with open(Dir+filename, 'wb') as f:
+        f.write(imgdata)
+        f.close()
+        print("img saved ", i)
+        
+'''
+
+# mysql 연결
+conn = mysql.connector.connect(host="localhost", user="root", password="intel123", db="rsbpi", charset="utf8")
 cur = conn.cursor()
 
-#cur.execute("SELECT id, datetime, frame, number, block\
-#from car_number_")
+# 데이터 업로드
+comm = "INSERT INTO car_pass_log (pi_id, car_number, time, isblock)\
+ VALUES (%s, %s, %s, %s);"
+cur.executemany(comm, tupled)
 
+conn.commit()
 
-
-
-#new_num = received['car_number']
-#print("this is ", new_num)
-#comm = "INSERT INTO car_number_mng (car_number) values (%s);"
-#cur.execute(comm, new_num)
-#print("DB updated")
-
-#conn.commit()
+print("DB updated", cur.lastrowid)
 conn.close()
