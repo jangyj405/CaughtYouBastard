@@ -1,13 +1,13 @@
 # server
 
 ## Requirement
-'''
+```
 Ubuntu 22.04 LTS
 Python3.10.12
-'''
+```
 
 ## Prerequite
-'''bash
+```bash
 pip install -U pip
 sudo apt-get update
 
@@ -19,5 +19,5 @@ pip install pymysql-pool
 
 pip install flask
 
-'''
+```
 
