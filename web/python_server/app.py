@@ -20,16 +20,6 @@ app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
 
-
-@app.route('/file', methods=['GET','POST'])
-
-def save_image():
-    image = request.files['image']
-    print('image is ', image)
-    image.save('./save_image/' + secure_filename(image.filename))
-
-    return 'done!'
-
 @app.route('/car-number-list', methods=['GET'])
 def find_car_num_list():
     arr = []
@@ -53,7 +43,6 @@ def find_car_num_list():
 #차량 번호 조회
 @app.route('/car-number', methods=['GET', 'POST'])
 def find_car_num():
-    arr = []
     conn = pymysql.connect(host="localhost", user="root", password="intel123", db="intel_project", charset='utf8')
     print("conn is", conn.host)
     cur = conn.cursor()

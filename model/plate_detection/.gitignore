@@ -1,0 +1,5 @@
+carplate.*
+carplate/
+*-workspace/
+*.zip
+venv/
