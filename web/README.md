@@ -15,9 +15,10 @@ sudo apt install mariadb-server mariadb-client
 sudo mysql_secure_installation
 pip install mysql-connector-python
 pip install jsonlines
-pip install pymysql-pool
 
 pip install flask
-
+pip install flask-cors
+pip install pymysql
+pip install pymysqlpool
 ```
 
