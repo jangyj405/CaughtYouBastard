@@ -10,9 +10,9 @@ import base64
 HOST = "10.10.14.220"
 PORT = 5000
 BUF_SIZE = 1024
-
+dtime = datetime.datetime.now()
 now = datetime.datetime.now().strftime("%d-%H-%M-%S")
-
+dtimestamp = dtime.timestamp()
 def recvall(sock, count):
     buf = b''
     while count:
@@ -48,7 +48,7 @@ while True:
     # 클라이언트에서 파일 받기
     received = c_socket.recv(BUF_SIZE)
     received = received.decode("utf-8")
-    print(received)
+    #print(received)
 
     with open(Dir+filename, 'a+') as f:
         f.write(received)
@@ -96,7 +96,7 @@ Dir = r"/home/intel/webserver/pythonserver/cap/"
 frame_path = []
 
 for i in range(0, len(frame)):
-    filename = f"car_{i}.jpeg"
+    filename = f"car_{str(dtimestamp)}.jpeg"
     imgdata = base64.b64decode(frame[i])
     with open(Dir+filename, 'wb') as f:
         f.write(imgdata)
@@ -104,7 +104,7 @@ for i in range(0, len(frame)):
         frame_path.append(Dir+filename)
 
 
-tupled = [(pi_id[i], car_number[i], time[i], frame_path[i], isblock[i]) for i in range(0, len(isblock))]
+tupled = [(pi_id[i], car_number[i], time[i], "http://10.10.14.220:3000/"+filename, isblock[i]) for i in range(0, len(isblock))]
 
 # mysql 연결
 conn = mysql.connector.connect(host="localhost", user="root", password="intel123", db="rsbpi", charset="utf8")
@@ -119,5 +119,6 @@ cur.executemany(comm, tupled)
 conn.commit()
 print("DB updated", cur.lastrowid)
 conn.close()
+
 
 
