@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 import { Navigation } from 'react-minimal-side-navigation';
 
 import {Sidebar, Menu, MenuItem} from 'react-pro-sidebar'
-
+import Toolbar from '@mui/material/Toolbar';
 const Bar = styled.div`
   position: sticky;
-  top: 200px;
+  top: 20px;
   width: 10.5rem;
   height: 100%;
   /* position: fixed;
@@ -24,7 +24,7 @@ export const SideBar = () => {
     return (
         <>
         <Bar>
-        <Sidebar className="app">
+        <Sidebar className="Menu">
           <Menu>
             <MenuItem className="menu1">
               <h2>Menu</h2>
@@ -37,15 +37,13 @@ export const SideBar = () => {
             <MenuItem
                 component={<Link to="/mng-car-num" />}
             > 
-                등록 관리(개발중)
+                차량 등록 관리
             </MenuItem>
             <MenuItem
                 component={<Link to="/logs" />}
             > 
-                log(개발중)
+                log 확인
             </MenuItem>
-
-            <MenuItem> Logout </MenuItem>
           </Menu>
         </Sidebar>
       </Bar>

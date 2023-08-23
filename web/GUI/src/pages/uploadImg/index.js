@@ -5,7 +5,8 @@ import {Button} from '@material-ui/core'
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://10.10.14.2:4000',
+  //baseURL:'http://10.10.14.2:4000',
+  baseURL:'http://10.10.14.220:8000',
     timeout: 2000,
 })
 

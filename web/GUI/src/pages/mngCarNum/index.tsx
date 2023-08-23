@@ -3,13 +3,14 @@ import Typography from '@mui/material/Typography'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
 import { DialogTitle } from '@material-ui/core';
-import {DataGrid, GridRowSelectionModel} from '@mui/x-data-grid'
+import {DataGrid} from '@mui/x-data-grid'
 import {car_number_list_columns as columns, car_number_list_rows as rows} from '../../tables/attribute'
 
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL:'http://10.10.14.2:4000',
+    //baseURL:'http://10.10.14.2:4000',
+    baseURL:'http://10.10.14.220:8000',
     timeout: 2000.
 })
 
@@ -33,31 +34,29 @@ function SimpleDialog(props: SimpleDialogProps) {
         car_num = e.target.value;
     }
 
-    const handleListItemClick = (value: string) =>{
-        onClose(value);
-    }
-
     const handelSumit = async (e:any) => {
-        const portalDiv = document.getElementById('car_number')!;
-
-        console.log("e:", e.target) 
         const formData = new FormData();
         formData.append("car_num", car_num)
-        console.log('portalDiv', portalDiv)
-        await instance.post('/car-number/regist', formData)
-
+        await instance.post('/car-number/regist', formData).then(response => {
+            console.log('/car-number/regist response : ', JSON.stringify(response, null, 2))
+        }).catch( error => {
+            console.log('failed', error)
+        })
+        onClose(selectedValue)
     }
 
     return (
         <Dialog onClose={handleClose} open={open}>
             <DialogTitle>새로 등록할 차량 번호를 입력하세요</DialogTitle>
-            <form>
-                <input 
+            <form style={{display: 'flex', justifyContent: 'space-around'}}>
+                <input
+                    style={{marginLeft:'30px', marginBottom: '7px'}}
                     placeholder='ex) 4462'
                     id='car_number'
                     onChange={handleChange}
                 />
                 <Button onClick={handelSumit}>등록</Button>
+                
             </form>
         </Dialog>
     )
@@ -117,17 +116,17 @@ export default function MngCarnNum() {
     return (
         <React.Fragment>
             <form>
-                {arr.length !=0 ? 
+                {
                     <div style={{
-                        paddingLeft: '300px',
-                        height: '100%', width:'50%'}}>
+                        paddingLeft: '100px',
+                        height: '100%', width:'100%'}}>
                         <div className='Car-number-list-head'>
                             <h3 >등록된 차량번호</h3>
                             <div>
-                                <Button variant='outlined' onClick={handleClickOpen}>
+                                <Button style={{marginRight: '10px'}} variant={'contained'} onClick={handleClickOpen} color='info'>
                                     추가
                                 </Button>
-                                <Button variant='outlined' onClick={handleDeleteButton}>
+                                <Button variant={rowSelectionModel.length > 0 ? 'contained' : 'outlined'} onClick={rowSelectionModel.length > 0 ? handleDeleteButton: undefined} color='info' >
                                     삭제
                                 </Button>
                             </div>
@@ -156,7 +155,7 @@ export default function MngCarnNum() {
                         />
                     </div>
                     
-                : <h4>loading...</h4>}
+                }
             </form>
         </React.Fragment>
     )
