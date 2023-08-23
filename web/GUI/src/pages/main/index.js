@@ -6,11 +6,10 @@ export default function Main()
 {
     return (
         <>
-        <div>
-            <h1> Welcome 👋<br/> SystemError World </h1>
-        </div>
- 
-      </>
+            <div style={{marginLeft: '180px', marginTop: '100px'}}>
+                <h1> Welcome 👋<br/> SystemError World </h1>
+            </div>
+        </>
 
     )
 }

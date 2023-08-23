@@ -12,8 +12,8 @@ import './App.css';
 const Layout = () =>{
   return (
     <div>
-      <main>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+      <main style={{display: 'flex', justifyContent: 'start', alignItems: 'start'}}>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         <SideBar />
         <Outlet />
       </main>

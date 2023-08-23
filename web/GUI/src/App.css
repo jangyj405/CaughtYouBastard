@@ -15,7 +15,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: white;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -39,6 +39,22 @@
 
 .Search-box {
   box-sizing: border-box;
+}
+
+.Button {
+  border:2px solid #ff0080;    /*---테두리 정의---*/
+  background-Color:#ffe6f2;   /*--백그라운드 정의---*/
+  font:12px;    /*--폰트 정의---*/
+  font-weight:bold;   /*--폰트 굵기---*/
+  color:#ff0080;    /*--폰트 색깔---*/
+  width:64px; 
+  height:37px;  /*--버튼 크기---*/
+  border-radius: 2px;
+  }
+.Menu {
+  display: flex;
+  flex-direction: column;
+  color: black;
 }
 
 @keyframes App-logo-spin {
