@@ -1,4 +1,4 @@
-# LPR using IR model
+# License Plate Detection using IR model
 
 ## Prerequisite
 ```
